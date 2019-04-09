@@ -1,0 +1,15 @@
+version: '3'
+
+# This will use rundeck's default configuration which uses an h2 file for data storage
+
+services:
+  rundeck:
+    image: ${RUNDECK_IMAGE:-rundeck/rundeck:SNAPSHOT}
+    tty: true
+    volumes:
+      - ./bin:/opt/rundeck/bin
+      - ./data/rundeck:/home/rundeck/server/data
+    environment:
+      RUNDECK_GRAILS_URL: ${RUNDECK_GRAILS_URL}
+    ports:
+      - 4440:4440

@@ -1,0 +1,32 @@
+version: '3'
+
+# This configuration will create a second container for storing the data using
+#  the database settings defined in .env if they are provided
+
+services:
+  db:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: ${RUNDECK_DATABASE_PASSWORD}
+    ports:
+      - 5432:5432
+    volumes:
+      - ./data/db:/var/lib/postgresql/data
+
+  rundeck:
+    image: ${RUNDECK_IMAGE:-rundeck/rundeck:SNAPSHOT}
+    tty: true
+    volumes:
+      - ./bin:/opt/rundeck/bin
+      - ./data/rundeck:/home/rundeck/server/data
+    depends_on:
+      - db
+    environment:
+      RUNDECK_DATABASE_DRIVER: ${RUNDECK_DATABASE_DRIVER:-org.h2.Driver}
+      RUNDECK_DATABASE_URL: ${RUNDECK_DATABASE_URL:-jdbc:h2:file:/home/rundeck/server/data/grailsdb;MVCC=true}
+      RUNDECK_DATABASE_USERNAME: ${RUNDECK_DATABASE_USERNAME}
+      RUNDECK_DATABASE_PASSWORD: ${RUNDECK_DATABASE_PASSWORD}
+      RUNDECK_GRAILS_URL: ${RUNDECK_GRAILS_URL}
+    ports:
+      - 4440:4440
